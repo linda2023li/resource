@@ -1,0 +1,26 @@
+ //启动服务器
+        Tomcat tomcat = new Tomcat();
+        Server server = tomcat.getServer();
+        Service service = server.findService("Tomcat");
+        Connector connector = new Connector();
+        connector.setPort(8888); // 设置端口号
+        StandardEngine engine = new StandardEngine();
+        engine.setDefaultHost("localhost"); // 设置ip地址
+        StandardHost host = new StandardHost();
+        host.setName("localhost"); // 设置ip地址
+        String contextPath = "";
+        StandardContext context = new StandardContext();
+        context.setPath(contextPath);
+        context.addLifecycleListener(new Tomcat.FixContextListener());
+        host.addChild(context);
+        engine.addChild(host);
+        service.setContainer(engine);
+        service.addConnector(connector);
+        //分发到Dispatcher
+        tomcat.addServlet(contextPath,"dispatcher",new DispatcherServlet(webApplicationContext));
+        context.addServletMappingDecoded("/*","dispatcher");
+        try {
+            tomcat.start();
+        } catch (LifecycleException e) {
+            throw new RuntimeException(e);
+        }
